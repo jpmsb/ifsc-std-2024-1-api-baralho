@@ -29,4 +29,8 @@ public class Baralho {
     public Boolean getEmbaralhado(){
         return embaralhado;
     }
+
+    public ArrayList<Carta> getCartas(){
+        return this.cartas;
+    }
 }
