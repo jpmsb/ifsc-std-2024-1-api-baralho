@@ -3,10 +3,12 @@ package engtelecom.std.apibaralho.service;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
+import java.util.ArrayList;
 
 import org.springframework.stereotype.Component;
 
 import engtelecom.std.apibaralho.entities.Baralho;
+import engtelecom.std.apibaralho.entities.Carta;
 
 @Component
 public class BaralhoService {
@@ -25,9 +27,9 @@ public class BaralhoService {
         return uuid;
     }
 
-    public Boolean excluir(String id){
-        if (baralhos.get(id) != null) {
-            baralhos.remove(id);
+    public Boolean excluir(String uuid){
+        if (baralhos.get(uuid) != null) {
+            baralhos.remove(uuid);
             return true;
         }
         return false;
@@ -35,5 +37,9 @@ public class BaralhoService {
 
     public Set<String> listarBaralhos(){
         return baralhos.keySet();
+    }
+
+    public ArrayList<Carta> listarCartas(String uuid){
+        return baralhos.get(uuid).getCartas();
     }
 }
