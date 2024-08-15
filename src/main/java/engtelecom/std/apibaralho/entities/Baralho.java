@@ -1,6 +1,7 @@
 package engtelecom.std.apibaralho.entities;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Baralho {
     private final String[] NAIPES = {"copas", "espadas", "ouros", "paus"};
@@ -21,9 +22,10 @@ public class Baralho {
         }
     }
 
-    public void embaralhar(){
-        cartas.sort(null);
+    public Boolean embaralhar(){
+        Collections.shuffle(cartas);
         embaralhado = true;
+        return embaralhado;
     }
 
     public Boolean getEmbaralhado(){
@@ -32,5 +34,9 @@ public class Baralho {
 
     public ArrayList<Carta> getCartas(){
         return this.cartas;
+    }
+
+    public int quantidadeCartas(){
+        return cartas.size();
     }
 }
