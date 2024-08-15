@@ -28,7 +28,7 @@ public class BaralhoService {
     }
 
     public Boolean excluir(String uuid){
-        if (baralhos.get(uuid) != null) {
+        if (this.existe(uuid)) {
             baralhos.remove(uuid);
             return true;
         }
@@ -41,5 +41,22 @@ public class BaralhoService {
 
     public ArrayList<Carta> listarCartas(String uuid){
         return baralhos.get(uuid).getCartas();
+    }
+
+    public Boolean existe(String uuid){
+        if (baralhos.get(uuid) != null) return true;
+        return false;
+    }
+
+    public Boolean embaralhar(String uuid){
+        return baralhos.get(uuid).embaralhar();
+    }
+
+    public Boolean embaralhado(String uuid){
+        return baralhos.get(uuid).getEmbaralhado();
+    }
+
+    public int quantidadeCartas(String uuid){
+        return baralhos.get(uuid).quantidadeCartas();
     }
 }
