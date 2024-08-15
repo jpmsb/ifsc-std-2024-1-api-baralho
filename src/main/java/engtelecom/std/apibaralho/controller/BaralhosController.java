@@ -2,6 +2,7 @@ package engtelecom.std.apibaralho.controller;
 
 import java.util.Set;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import engtelecom.std.apibaralho.entities.Carta;
+import engtelecom.std.apibaralho.exceptions.BaralhoEmbaralhadoException;
 import engtelecom.std.apibaralho.exceptions.BaralhoNaoEncontradoException;
 import engtelecom.std.apibaralho.service.BaralhoService;
 
@@ -31,19 +34,27 @@ public class BaralhosController {
     private BaralhoService baralhoService;
 
     @GetMapping
-    public Set<String> listarBaralhos(){
-        return this.baralhoService.listarBaralhos();
+    public Map<String, Set<String>> listarBaralhos(){
+        Map<String, Set<String>> baralhos = new HashMap<>();
+        baralhos.put("baralhos", this.baralhoService.listarBaralhos());
+        return baralhos;
     }
 
     @GetMapping("/{uuid}")
-    public ArrayList<Map<String, String>> listaCartas(@PathVariable String uuid){
+    public Map<String, ArrayList<Map<String, String>>> listaCartas(@PathVariable String uuid){
+        if (! this.baralhoService.existe(uuid)) {
+            throw new BaralhoNaoEncontradoException(uuid);
+        } else if (this.baralhoService.embaralhado(uuid)) {
+            throw new BaralhoEmbaralhadoException(uuid);
+        }
+
         ArrayList<Carta> cartas = this.baralhoService.listarCartas(uuid);
         ArrayList<Map<String, String>> cartasCompletas = new ArrayList<>();
 
         for (Carta carta : cartas) {
             String urlBase = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
 
-            // Garante que a ordem permaneça a mesma de quando foi adicionada
+            // LinkedHashMap garante que a ordem permaneça a mesma de quando foi adicionada
             Map<String, String> cartaCompleta = new LinkedHashMap<>();
             cartaCompleta.put("codigo", carta.getCodigo());
             cartaCompleta.put("naipe", carta.getNaipe());
@@ -53,7 +64,9 @@ public class BaralhosController {
             cartasCompletas.add(cartaCompleta);
         }
 
-        return cartasCompletas;
+        Map<String, ArrayList<Map<String, String>>> cartasCompletasChave = new HashMap<>();
+        cartasCompletasChave.put("cartas", cartasCompletas);
+        return cartasCompletasChave;
     }
 
     @PostMapping
@@ -71,13 +84,31 @@ public class BaralhosController {
         }
     }
 
+    @PutMapping("/{uuid}")
+    public String embaralhar(@PathVariable String uuid){
+        if (this.baralhoService.embaralhar(uuid)){
+             return "{ \"status\" : \"sucesso\", \"quantidadeCartas\" : " + this.baralhoService.quantidadeCartas(uuid) + " }";
+        }
+        return "{ \"status\" : \"falha\", \"quantidadeCartas\" : " + this.baralhoService.quantidadeCartas(uuid) + " }";
+    }
+
     @ControllerAdvice
     class BaralhoNaoEncontrado {
         @ResponseBody
         @ExceptionHandler(BaralhoNaoEncontradoException.class)
         @ResponseStatus(HttpStatus.NOT_FOUND)
         String baralhoNaoEncontrado(BaralhoNaoEncontradoException p){
-            return p.getMessage();
+            return "{ \"erro\" : \"" + p.getMessage() + "\" }";
+        }
+    }
+
+    @ControllerAdvice
+    class BaralhoEmbaralhado {
+        @ResponseBody
+        @ExceptionHandler(BaralhoEmbaralhadoException.class)
+        @ResponseStatus(HttpStatus.NOT_FOUND)
+        String baralhoEmbaralhado(BaralhoEmbaralhadoException p){
+            return "{ \"erro\" : \"" + p.getMessage() + "\" }";
         }
     }
 }
