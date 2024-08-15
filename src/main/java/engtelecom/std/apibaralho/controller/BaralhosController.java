@@ -1,13 +1,17 @@
 package engtelecom.std.apibaralho.controller;
 
 import java.util.Set;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -59,7 +63,7 @@ public class BaralhosController {
             cartaCompleta.put("codigo", carta.getCodigo());
             cartaCompleta.put("naipe", carta.getNaipe());
             cartaCompleta.put("valor", carta.getValor());
-            cartaCompleta.put("url", urlBase + "/carta/" + carta.getCodigo() + ".png");
+            cartaCompleta.put("url", urlBase + "/baralhos/carta/" + carta.getCodigo() + ".png");
 
             cartasCompletas.add(cartaCompleta);
         }
@@ -67,6 +71,13 @@ public class BaralhosController {
         Map<String, ArrayList<Map<String, String>>> cartasCompletasChave = new HashMap<>();
         cartasCompletasChave.put("cartas", cartasCompletas);
         return cartasCompletasChave;
+    }
+
+    @GetMapping(value = "/carta/{carta}", produces = MediaType.IMAGE_PNG_VALUE)
+    @ResponseBody
+    public ResponseEntity<InputStreamResource> getImage(@PathVariable String carta){
+        InputStream is = BaralhoService.class.getClassLoader().getResourceAsStream("static/cartas/" + carta);
+        return ResponseEntity.ok().body(new InputStreamResource(is));
     }
 
     @PostMapping
