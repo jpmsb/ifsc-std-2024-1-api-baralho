@@ -32,6 +32,7 @@ import engtelecom.std.apibaralho.entities.Carta;
 import engtelecom.std.apibaralho.exceptions.BaralhoEmbaralhadoException;
 import engtelecom.std.apibaralho.exceptions.BaralhoNaoEncontradoException;
 import engtelecom.std.apibaralho.exceptions.BaralhoVazioException;
+import engtelecom.std.apibaralho.exceptions.ImagemNaoEncontradaException;
 import engtelecom.std.apibaralho.service.BaralhoService;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -68,8 +69,13 @@ public class BaralhosController {
     @GetMapping(value = "/carta/{carta}", produces = MediaType.IMAGE_PNG_VALUE)
     @ResponseBody
     public ResponseEntity<InputStreamResource> getImage(@PathVariable String carta){
-        InputStream is = BaralhoService.class.getClassLoader().getResourceAsStream("static/cartas/" + carta);
-        return ResponseEntity.ok().body(new InputStreamResource(is));
+        try {
+            InputStream is = BaralhoService.class.getClassLoader().getResourceAsStream("static/cartas/" + carta);
+            return ResponseEntity.ok().body(new InputStreamResource(is));
+        } catch (Exception e) {
+            throw new ImagemNaoEncontradaException(carta);
+        }
+        
     }
 
     @PostMapping
@@ -162,6 +168,16 @@ public class BaralhosController {
         @ExceptionHandler(BaralhoVazioException.class)
         @ResponseStatus(HttpStatus.BAD_REQUEST)
         String baralhoVazio(BaralhoVazioException p){
+            return "{ \"erro\" : \"" + p.getMessage() + "\" }";
+        }
+    }
+
+    @ControllerAdvice
+    class ImagemNaoEncontrada{
+        @ResponseBody
+        @ExceptionHandler(ImagemNaoEncontradaException.class)
+        @ResponseStatus(HttpStatus.NOT_FOUND)
+        String imagemNaoEncontrada(ImagemNaoEncontradaException p){
             return "{ \"erro\" : \"" + p.getMessage() + "\" }";
         }
     }
