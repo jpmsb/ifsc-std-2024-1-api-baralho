@@ -148,7 +148,7 @@ public class BaralhosController {
         @ExceptionHandler(BaralhoNaoEncontradoException.class)
         @ResponseStatus(HttpStatus.NOT_FOUND)
         String baralhoNaoEncontrado(BaralhoNaoEncontradoException p){
-            return "{ \"erro\" : \"" + p.getMessage() + "\" }";
+            return p.getMessage();
         }
     }
 
