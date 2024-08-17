@@ -48,8 +48,8 @@ public class BaralhoService {
         return false;
     }
 
-    public Boolean embaralhar(String uuid){
-        return baralhos.get(uuid).embaralhar();
+    public Boolean embaralha(String uuid){
+        return baralhos.get(uuid).embaralha();
     }
 
     public Boolean embaralhado(String uuid){
@@ -58,5 +58,9 @@ public class BaralhoService {
 
     public int quantidadeCartas(String uuid){
         return baralhos.get(uuid).quantidadeCartas();
+    }
+
+    public ArrayList<Carta> removeNCartas(String uuid, int quantidade){
+        return baralhos.get(uuid).removeNCartas(quantidade);
     }
 }
