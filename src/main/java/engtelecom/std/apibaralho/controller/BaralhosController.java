@@ -25,10 +25,16 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
 import engtelecom.std.apibaralho.entities.Carta;
 import engtelecom.std.apibaralho.exceptions.BaralhoEmbaralhadoException;
 import engtelecom.std.apibaralho.exceptions.BaralhoNaoEncontradoException;
+import engtelecom.std.apibaralho.exceptions.BaralhoVazioException;
 import engtelecom.std.apibaralho.service.BaralhoService;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 
 @RestController
@@ -50,26 +56,12 @@ public class BaralhosController {
             throw new BaralhoNaoEncontradoException(uuid);
         } else if (this.baralhoService.embaralhado(uuid)) {
             throw new BaralhoEmbaralhadoException(uuid);
-        }
-
-        ArrayList<Carta> cartas = this.baralhoService.listarCartas(uuid);
-        ArrayList<Map<String, String>> cartasCompletas = new ArrayList<>();
-
-        for (Carta carta : cartas) {
-            String urlBase = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
-
-            // LinkedHashMap garante que a ordem permaneça a mesma de quando foi adicionada
-            Map<String, String> cartaCompleta = new LinkedHashMap<>();
-            cartaCompleta.put("codigo", carta.getCodigo());
-            cartaCompleta.put("naipe", carta.getNaipe());
-            cartaCompleta.put("valor", carta.getValor());
-            cartaCompleta.put("url", urlBase + "/baralhos/carta/" + carta.getCodigo() + ".png");
-
-            cartasCompletas.add(cartaCompleta);
+        } else if (this.baralhoService.quantidadeCartas(uuid) == 0) {
+            throw new BaralhoVazioException(uuid);
         }
 
         Map<String, ArrayList<Map<String, String>>> cartasCompletasChave = new HashMap<>();
-        cartasCompletasChave.put("cartas", cartasCompletas);
+        cartasCompletasChave.put("cartas", montaCartaCompleta(this.baralhoService.listarCartas(uuid)));
         return cartasCompletasChave;
     }
 
@@ -96,11 +88,52 @@ public class BaralhosController {
     }
 
     @PutMapping("/{uuid}")
-    public String embaralhar(@PathVariable String uuid){
-        if (this.baralhoService.embaralhar(uuid)){
+    public String embaralha(@PathVariable String uuid){
+        if (! this.baralhoService.existe(uuid)) {
+            throw new BaralhoNaoEncontradoException(uuid);
+        }
+
+        if (this.baralhoService.embaralha(uuid)){
              return "{ \"status\" : \"sucesso\", \"quantidadeCartas\" : " + this.baralhoService.quantidadeCartas(uuid) + " }";
         }
         return "{ \"status\" : \"falha\", \"quantidadeCartas\" : " + this.baralhoService.quantidadeCartas(uuid) + " }";
+    }
+
+    @PutMapping(path = "/{uuid}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String, Object> removeNCartas(@PathVariable String uuid, @RequestBody String quantidade) {
+        if (! this.baralhoService.existe(uuid)) {
+            throw new BaralhoNaoEncontradoException(uuid);
+        } else if (this.baralhoService.quantidadeCartas(uuid) == 0) {
+            throw new BaralhoVazioException(uuid);
+        }
+
+        Map<String, Object> cartasRemovidasEQuantidadeRestante = new HashMap<>();
+        JsonObject jsonProcessado = new Gson().fromJson(quantidade, JsonObject.class);
+        int quantidadeDoJson = Integer.parseInt(jsonProcessado.get("quantidade").toString());
+
+        ArrayList<Carta> cartasRemovidas =  this.baralhoService.removeNCartas(uuid, quantidadeDoJson);
+        cartasRemovidasEQuantidadeRestante.put("cartas", montaCartaCompleta(cartasRemovidas));
+        cartasRemovidasEQuantidadeRestante.put("quantidadeRestante", this.baralhoService.quantidadeCartas(uuid));
+
+        return cartasRemovidasEQuantidadeRestante;
+    }
+
+    private ArrayList<Map<String, String>> montaCartaCompleta(ArrayList<Carta> cartas){
+        ArrayList<Map<String, String>> cartasCompletas = new ArrayList<>();
+        String urlBase = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+
+        for (Carta carta : cartas) {
+            // LinkedHashMap garante que a ordem permaneça a mesma de quando foi adicionada
+            Map<String, String> cartaCompleta = new LinkedHashMap<>();
+            cartaCompleta.put("codigo", carta.getCodigo());
+            cartaCompleta.put("naipe", carta.getNaipe());
+            cartaCompleta.put("valor", carta.getValor());
+            cartaCompleta.put("url", urlBase + "/baralhos/carta/" + carta.getCodigo() + ".png");
+
+            cartasCompletas.add(cartaCompleta);
+        }
+
+        return cartasCompletas;
     }
 
     @ControllerAdvice
@@ -117,8 +150,18 @@ public class BaralhosController {
     class BaralhoEmbaralhado {
         @ResponseBody
         @ExceptionHandler(BaralhoEmbaralhadoException.class)
-        @ResponseStatus(HttpStatus.NOT_FOUND)
+        @ResponseStatus(HttpStatus.FORBIDDEN)
         String baralhoEmbaralhado(BaralhoEmbaralhadoException p){
+            return "{ \"erro\" : \"" + p.getMessage() + "\" }";
+        }
+    }
+
+    @ControllerAdvice
+    class BaralhoVazio {
+        @ResponseBody
+        @ExceptionHandler(BaralhoVazioException.class)
+        @ResponseStatus(HttpStatus.BAD_REQUEST)
+        String baralhoVazio(BaralhoVazioException p){
             return "{ \"erro\" : \"" + p.getMessage() + "\" }";
         }
     }
