@@ -178,7 +178,7 @@ public class BaralhosController {
         @ExceptionHandler(ImagemNaoEncontradaException.class)
         @ResponseStatus(HttpStatus.NOT_FOUND)
         String imagemNaoEncontrada(ImagemNaoEncontradaException p){
-            return "{ \"erro\" : \"" + p.getMessage() + "\" }";
+            return p.getMessage();
         }
     }
 }
