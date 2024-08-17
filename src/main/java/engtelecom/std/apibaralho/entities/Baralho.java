@@ -22,7 +22,7 @@ public class Baralho {
         }
     }
 
-    public Boolean embaralhar(){
+    public Boolean embaralha(){
         Collections.shuffle(cartas);
         embaralhado = true;
         return embaralhado;
@@ -34,6 +34,21 @@ public class Baralho {
 
     public ArrayList<Carta> getCartas(){
         return this.cartas;
+    }
+
+    public ArrayList<Carta> removeNCartas(int quantidade){
+        ArrayList<Carta> cartasRemovidas;
+
+        if (quantidade >= cartas.size()) {
+            cartasRemovidas = new ArrayList<>(cartas);
+            cartas.removeAll(cartas);
+
+        } else {
+            cartasRemovidas = new ArrayList<>();
+            for (int j = 0; j < quantidade; j++) cartasRemovidas.add(cartas.removeFirst());
+        }
+
+        return cartasRemovidas;
     }
 
     public int quantidadeCartas(){
