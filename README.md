@@ -4,6 +4,24 @@
 
 Neste projeto foi criada uma API RESTFul para a gerência de baralhos de cartas.
 
+### Sumário
+
+- [Requisitos atendidos](#requisitos-atendidos)
+- [Desenho da API RESTful](#desenho-da-api-restful)
+- [Execução do projeto](#execução-do-projeto)
+- [Utilização da API](#utilização-da-api)
+    - [Criação de um novo baralho](#criação-de-um-novo-baralho)
+    - [Listagem de todos os baralhos criados](#listagem-de-todos-os-baralhos-criados)
+    - [Listagem das cartas de um baralho](#listagem-das-cartas-de-um-baralho)
+    - [Embalhar as cartas de um baralho](#embalhar-as-cartas-de-um-baralho)
+    - [Listagem das cartas de um baralho já embaralhado](#listagem-das-cartas-de-um-baralho-já-embaralhado)
+    - [Listagem de cartas de um baralho inexistente](#listagem-de-cartas-de-um-baralho-inexistente)
+    - [Remoção de cartas de um baralho](#remoção-de-cartas-de-um-baralho)
+    - [Remoção de cartas de um baralho inexistente](#remoção-de-cartas-de-um-baralho-inexistente)
+    - [Remoção de cartas de um baralho já vazio](#remoção-de-cartas-de-um-baralho-já-vazio)
+    - [Exclusão de um baralho](#exclusão-de-um-baralho)
+    - [Exclusão de um baralho inexistente](#exclusão-de-um-baralho-inexistente)
+
 ## Requisitos atendidos
 
 Todos os requisitos do projeto foram atendidos e são listados abaixo:
@@ -53,15 +71,15 @@ Caso não ocorra erro, nenhuma mensagem deverá ser exibida no terminal, já que
 
 As requisições na API podem ser realizadas utilizando o cliente HTTP em linha de comando `curl`. Abaixo, estão exemplos que mostram todas as capacidades da API:
 
- - Criação de um novo baralho:
+### Criação de um novo baralho:
 
-    - Requisição:
+- Requisição:
 
     ```bash
     curl -sLX POST 'http://localhost:8080/baralhos/'
     ```
 
-    - Resposta:
+- Resposta:
 
     ```json
     {
@@ -70,15 +88,15 @@ As requisições na API podem ser realizadas utilizando o cliente HTTP em linha 
     ```
 
 
- - Listagem de todos os baralhos criados:
+### Listagem de todos os baralhos criados:
 
-    - Requisição:
+- Requisição:
 
     ```bash
     curl -sLX GET 'http://localhost:8080/baralhos/'
     ```
 
-    - Resposta:
+- Resposta:
 
     ```json
     {
@@ -88,15 +106,15 @@ As requisições na API podem ser realizadas utilizando o cliente HTTP em linha 
     }
     ```
 
-- Listagem das cartas de um baralho:
+### Listagem das cartas de um baralho:
 
-    - Requisição:
+- Requisição:
 
     ```bash
     curl -sLX GET 'http://localhost:8080/baralhos/c02a8d9e-cc09-461a-b504-3c7cc2331046'
     ```
 
-    - Resposta:
+- Resposta:
 
     ```json
     {
@@ -416,16 +434,15 @@ As requisições na API podem ser realizadas utilizando o cliente HTTP em linha 
         ]
     }
     ```
+### Embalhar as cartas de um baralho:
 
-- Embalhar as cartas de um baralho:
-
-    - Requisição:
+- Requisição:
 
     ```bash
     curl -sLX PUT 'http://localhost:8080/baralhos/c02a8d9e-cc09-461a-b504-3c7cc2331046'
     ```
 
-    - Resposta:
+- Resposta:
 
     ```json
     {
@@ -434,15 +451,15 @@ As requisições na API podem ser realizadas utilizando o cliente HTTP em linha 
     }
     ```
 
-- Listagem das cartas de um baralho já embaralhado:
+### Listagem das cartas de um baralho já embaralhado:
 
-    - Requisição:
+- Requisição:
 
     ```bash
     curl -sLX GET 'http://localhost:8080/baralhos/c02a8d9e-cc09-461a-b504-3c7cc2331046'
     ```
 
-    - Resposta:
+- Resposta:
 
     ```json
     {
@@ -450,15 +467,15 @@ As requisições na API podem ser realizadas utilizando o cliente HTTP em linha 
     }
     ```
 
-- Listagem de cartas de um baralho inexistente:
+### Listagem de cartas de um baralho inexistente:
 
-    - Requisição:
+- Requisição:
 
     ```bash
     curl -svLX GET 'http://localhost:8080/baralhos/c02a8d9e-cc09-461a-b504-3c7cc233104s'
     ```
 
-    - Resposta:
+- Resposta:
 
     ```
     * Host localhost:8080 was resolved.
@@ -483,15 +500,15 @@ As requisições na API podem ser realizadas utilizando o cliente HTTP em linha 
 
     Note que não há retorno de um documento JSON, porém há o status de código 404.
 
-- Remoção de cartas de um baralho:
+### Remoção de cartas de um baralho:
 
-    - Requisição:
+- Requisição:
 
     ```bash
     curl -sLX PUT 'http://localhost:8080/baralhos/c02a8d9e-cc09-461a-b504-3c7cc2331046' -H 'Content-Type: application/json' -d '{"quantidade": 5}'
     ```
 
-    - Resposta:
+- Resposta:
 
     ```json
     {
@@ -533,15 +550,15 @@ As requisições na API podem ser realizadas utilizando o cliente HTTP em linha 
 
     Na resposta acima, é possível notar que as cartas foram removidas de um baralho já embaralhado.
 
-- Remoção de cartas de um baralho inexistente:
+### Remoção de cartas de um baralho inexistente:
 
-    - Requisição:
+- Requisição:
 
     ```bash
     curl -vsLX PUT 'http://localhost:8080/baralhos/c02a8d9e-cc09-461a-b504-3c7cc2331046d' -H 'Content-Type: application/json' -d '{"quantidade": 5}'
     ```
 
-    - Resposta:
+- Resposta:
 
     ```
     * Host localhost:8080 was resolved.
@@ -566,15 +583,15 @@ As requisições na API podem ser realizadas utilizando o cliente HTTP em linha 
     Não foi possível encontrar o baralho com o identificador: c02a8d9e-cc09-461a-b504-3c7cc2331046d
     ```
 
-- Remoção de cartas de um baralho já vazio:
+### Remoção de cartas de um baralho já vazio:
 
-    - Requisição:
+- Requisição:
 
     ```bash
     curl -sLX PUT 'http://localhost:8080/baralhos/c02a8d9e-cc09-461a-b504-3c7cc2331046' -H 'Content-Type: application/json' -d '{"quantidade": 5}'
     ```
 
-    - Resposta:
+- Resposta:
 
     ```json
     {
@@ -582,15 +599,15 @@ As requisições na API podem ser realizadas utilizando o cliente HTTP em linha 
     }
     ```
 
-- Exclusão de um baralho:
+### Exclusão de um baralho:
 
-    - Requisição:
+- Requisição:
 
     ```bash
     curl -vsLX DELETE 'http://localhost:8080/baralhos/c02a8d9e-cc09-461a-b504-3c7cc2331046'
     ```
 
-    - Resposta:
+- Resposta:
 
     ```
     * Host localhost:8080 was resolved.
@@ -610,15 +627,15 @@ As requisições na API podem ser realizadas utilizando o cliente HTTP em linha 
     * Connection #0 to host localhost left intact
     ```
 
-- Exclusão de um baralho inexistente:
+### Exclusão de um baralho inexistente:
 
-    - Requisição:
+- Requisição:
 
     ```bash
     curl -vsLX DELETE 'http://localhost:8080/baralhos/c02a8d9e-cc09-461a-b504-3c7cc2331046'
     ```
 
-    - Resposta:
+- Resposta:
 
     ```
     * Host localhost:8080 was resolved.
